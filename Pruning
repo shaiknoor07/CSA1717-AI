@@ -1,0 +1,97 @@
+import math
+
+def print_board(board):
+    for row in board:
+        print(" | ".join(row))
+        print("-" * 5)
+
+def check_winner(board, player):
+    for i in range(3):
+        if all(cell == player for cell in board[i]) or all(board[j][i] == player for j in range(3)):
+            return True
+    return board[0][0] == board[1][1] == board[2][2] == player or \
+           board[0][2] == board[1][1] == board[2][0] == player
+
+def is_full(board):
+    return all(cell in ['X', 'O'] for row in board for cell in row)
+
+def minimax(board, depth, is_maximizing, alpha, beta):
+    if check_winner(board, 'O'):
+        return 1
+    if check_winner(board, 'X'):
+        return -1
+    if is_full(board):
+        return 0
+
+    if is_maximizing:
+        max_eval = -math.inf
+        for i in range(3):
+            for j in range(3):
+                if board[i][j] == ' ':
+                    board[i][j] = 'O'
+                    eval = minimax(board, depth + 1, False, alpha, beta)
+                    board[i][j] = ' '
+                    max_eval = max(max_eval, eval)
+                    alpha = max(alpha, eval)
+                    if beta <= alpha:
+                        return max_eval
+        return max_eval
+    else:
+        min_eval = math.inf
+        for i in range(3):
+            for j in range(3):
+                if board[i][j] == ' ':
+                    board[i][j] = 'X'
+                    eval = minimax(board, depth + 1, True, alpha, beta)
+                    board[i][j] = ' '
+                    min_eval = min(min_eval, eval)
+                    beta = min(beta, eval)
+                    if beta <= alpha:
+                        return min_eval
+        return min_eval
+
+def best_move(board):
+    best_score = -math.inf
+    move = None
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == ' ':
+                board[i][j] = 'O'
+                score = minimax(board, 0, False, -math.inf, math.inf)
+                board[i][j] = ' '
+                if score > best_score:
+                    best_score = score
+                    move = (i, j)
+    return move
+
+def play_game():
+    board = [[' ']*3 for _ in range(3)]
+    print_board(board)
+
+    while True:
+        row = int(input("Enter row (0-2): "))
+        col = int(input("Enter col (0-2): "))
+        if board[row][col] != ' ':
+            print("Invalid move. Try again.")
+            continue
+        board[row][col] = 'X'
+        print_board(board)
+        if check_winner(board, 'X'):
+            print("You win!")
+            break
+        if is_full(board):
+            print("Draw!")
+            break
+
+        ai_row, ai_col = best_move(board)
+        board[ai_row][ai_col] = 'O'
+        print("AI played:")
+        print_board(board)
+        if check_winner(board, 'O'):
+            print("AI wins!")
+            break
+        if is_full(board):
+            print("Draw!")
+            break
+
+play_game()
