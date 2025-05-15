@@ -1,0 +1,51 @@
+import math
+from collections import Counter
+
+def entropy(data):
+    labels = [row[-1] for row in data]
+    counts = Counter(labels)
+    total = len(data)
+    return -sum((count/total) * math.log2(count/total) for count in counts.values())
+
+def split_data(data, feature_index, value):
+    return [row for row in data if row[feature_index] == value]
+
+def best_feature_to_split(data):
+    base_entropy = entropy(data)
+    best_gain = 0
+    best_feature = -1
+    num_features = len(data[0]) - 1
+
+    for i in range(num_features):
+        values = set(row[i] for row in data)
+        new_entropy = sum(
+            (len(subset := split_data(data, i, v)) / len(data)) * entropy(subset)
+            for v in values
+        )
+        info_gain = base_entropy - new_entropy
+        if info_gain > best_gain:
+            best_gain, best_feature = info_gain, i
+    return best_feature
+
+def majority_label(data):
+    labels = [row[-1] for row in data]
+    return Counter(labels).most_common(1)[0][0]
+
+def build_tree(data, features):
+    labels = [row[-1] for row in data]
+    if labels.count(labels[0]) == len(labels):
+        return labels[0]
+    if not features:
+        return majority_label(data)
+
+    best_feat = best_feature_to_split(data)
+    best_feat_name = features[best_feat]
+    tree = {best_feat_name: {}}
+    values = set(row[best_feat] for row in data)
+
+    for value in values:
+        sub_features = features[:best_feat] + features[best_feat+1:]
+        sub_data = [row[:best_feat] + row[best_feat+1:] for row in split_data(data, best_feat, value)]
+        tree[best_feat_name][value] = build_tree(sub_data, sub_features)
+
+    return tree
