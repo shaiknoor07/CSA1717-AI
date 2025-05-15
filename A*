@@ -1,0 +1,18 @@
+import heapq
+
+def a_star(graph, start, goal, heuristic):
+    open_set = [(0 + heuristic(start), 0, start, [])]  # (f_score, g_score, node, path)
+    visited = set()
+
+    while open_set:
+        f, g, node, path = heapq.heappop(open_set)
+        if node in visited:
+            continue
+        path = path + [node]
+        if node == goal:
+            return path, g
+        visited.add(node)
+        for neighbor, cost in graph[node]:
+            if neighbor not in visited:
+                heapq.heappush(open_set, (g + cost + heuristic(neighbor), g + cost, neighbor, path))
+    return None, float('inf')
