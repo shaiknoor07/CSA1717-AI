@@ -1,0 +1,34 @@
+
+regions = {
+    'WA': ['NT', 'SA'],
+    'NT': ['WA', 'SA', 'Q'],
+    'SA': ['WA', 'NT', 'Q', 'NSW', 'V'],
+    'Q': ['NT', 'SA', 'NSW'],
+    'NSW': ['Q', 'SA', 'V'],
+    'V': ['SA', 'NSW'],
+    'T': []
+}
+
+colors = ['Red', 'Green', 'Blue']
+
+def is_valid(region, color, assignment):
+    return all(assignment.get(neighbor) != color for neighbor in regions[region])
+
+def backtrack(assignment):
+    if len(assignment) == len(regions):
+        return assignment
+    unassigned = [r for r in regions if r not in assignment]
+    region = unassigned[0]
+    for color in colors:
+        if is_valid(region, color, assignment):
+            assignment[region] = color
+            result = backtrack(assignment)
+            if result:
+                return result
+            del assignment[region]
+    return None
+
+solution = backtrack({})
+print("Map Coloring Solution:")
+for region in sorted(solution):
+    print(f"{region}: {solution[region]}")
