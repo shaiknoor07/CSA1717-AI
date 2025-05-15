@@ -1,0 +1,24 @@
+def vacuum_world(environment, location):
+    print(f"Initial: Location={location}, Environment={environment}")
+    actions = []
+
+    if environment[location] == 'Dirty':
+        actions.append('Suck')
+        environment[location] = 'Clean'
+        print(f"Action: Suck | {location} is now Clean")
+
+    other = 'B' if location == 'A' else 'A'
+    actions.append(f'Move to {other}')
+    print(f"Action: Move to {other}")
+    
+    if environment[other] == 'Dirty':
+        actions.append('Suck')
+        environment[other] = 'Clean'
+        print(f"Action: Suck | {other} is now Clean")
+
+    print(f"Final Environment: {environment}")
+    return actions
+
+environment = {'A': 'Dirty', 'B': 'Dirty'}  # You can change states to Clean/Dirty
+start_location = 'A'
+vacuum_world(environment, start_location)
