@@ -1,0 +1,44 @@
+from collections import deque
+
+def is_valid(m1, c1, m2, c2):
+    return (0 <= m1 <= 3 and 0 <= c1 <= 3 and
+            0 <= m2 <= 3 and 0 <= c2 <= 3 and
+            (m1 == 0 or m1 >= c1) and
+            (m2 == 0 or m2 >= c2))
+
+def solve():
+    start = (3, 3, 0, 0, 1)  # (M_left, C_left, M_right, C_right, boat_left)
+    goal = (0, 0, 3, 3, 0)
+    moves = [(1, 0), (2, 0), (0, 1), (0, 2), (1, 1)]
+    visited = set()
+    queue = deque([(start, [])])
+
+    while queue:
+        state, path = queue.popleft()
+        if state in visited:
+            continue
+        visited.add(state)
+        if state == goal:
+            return path + [state]
+
+        m1, c1, m2, c2, boat = state
+        for m, c in moves:
+            if boat:
+                new_state = (m1 - m, c1 - c, m2 + m, c2 + c, 0)
+            else:
+                new_state = (m1 + m, c1 + c, m2 - m, c2 - c, 1)
+
+            if is_valid(*new_state[:4]):
+                queue.append((new_state, path + [state]))
+
+    return None
+
+solution = solve()
+
+if solution:
+    print("Solution found in", len(solution)-1, "moves:")
+    for i, (ml, cl, mr, cr, boat) in enumerate(solution):
+        side = "Left" if boat else "Right"
+        print(f"Step {i}: Left[{ml}M,{cl}C] -- Boat on {side} -- Right[{mr}M,{cr}C]")
+else:
+    print("No solution found.")
